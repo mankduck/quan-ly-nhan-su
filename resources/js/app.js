@@ -1,23 +1,24 @@
-import './bootstrap';
-import '../css/app.css';
+import Vue from 'vue'
+import VueMeta from 'vue-meta'
+import PortalVue from 'portal-vue'
+import { InertiaProgress } from '@inertiajs/progress'
+import { createInertiaApp } from '@inertiajs/inertia-vue'
 
-import { createApp, h } from 'vue';
-import { createInertiaApp } from '@inertiajs/vue3';
-import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
-import { ZiggyVue } from '../../vendor/tightenco/ziggy';
+Vue.config.productionTip = false
+Vue.mixin({ methods: { route: window.route } })
+Vue.use(PortalVue)
+Vue.use(VueMeta)
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+InertiaProgress.init()
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
-    resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
-    setup({ el, App, props, plugin }) {
-        return createApp({ render: () => h(App, props) })
-            .use(plugin)
-            .use(ZiggyVue)
-            .mount(el);
-    },
-    progress: {
-        color: '#4B5563',
-    },
-});
+  resolve: name => require(`./Pages/${name}`),
+  setup({ el, app, props }) {
+    new Vue({
+      metaInfo: {
+        titleTemplate: title => (title ? `${title} - siben.vn` : 'siben.vn'),
+      },
+      render: h => h(app, props),
+    }).$mount(el)
+  },
+})
